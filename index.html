@@ -46,13 +46,12 @@
 <body>
     <h1>🌌 小宇宙簽到系統 🌠</h1>
     <div class="card">
-        <p id="user-info">載入中...</p>
-        <p id="stats">🔄 正在載入您的數據...</p>
-        <button id="sign-in-btn" class="btn" disabled>🌍 簽到</button>
+        <p id="user-info">歡迎來到小宇宙簽到系統！</p>
+        <button id="sign-in-btn" class="btn">🌍 簽到</button>
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
-        const LIFF_ID = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
+        const LIFF_ID = "https://liff.line.me/2006957303-QVNd9gza"; // 替換成你的 LIFF URL
         const GAS_URL = "https://script.google.com/macros/s/AKfycbx2o3RKPBImJFbtV5sgdm7hEtC7FHIkv8nmX4oa7A9BN9VgzPydp4fMiNsN8VMyUd0pjg/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
@@ -64,34 +63,7 @@
                 const profile = await liff.getProfile();
                 console.log("LIFF 已獲取用戶:", profile);
                 document.getElementById("user-info").innerText = `歡迎, ${profile.displayName} 🌟`;
-                loadUserData(profile.userId);
-            }
-        }
-
-        async function loadUserData(userId) {
-            console.log("正在請求試算表數據, 用戶 ID:", userId);
-            try {
-                const response = await fetch(`${GAS_URL}?action=getUserData&userId=${userId}`);
-                const result = await response.json();
-                console.log("從試算表獲取的數據:", result);
-                
-                if (result.exists) {
-                    document.getElementById("user-info").innerText = `歡迎, ${result.displayName} 🌟`;
-                    document.getElementById("stats").innerHTML = `
-                        🏆 總簽到次數：${result.totalSignIn} 次<br>
-                        🔥 連續簽到：${result.consecutiveSignIn} 天
-                    `;
-                    document.getElementById("sign-in-btn").disabled = false;
-                    document.getElementById("sign-in-btn").style.display = "block";
-                    document.getElementById("sign-in-btn").addEventListener("click", () => signIn(userId, result.displayName));
-                } else {
-                    document.getElementById("user-info").innerText = "請先在 LINE 輸入『加入遊戲』";
-                    document.getElementById("stats").innerText = "";
-                    document.getElementById("sign-in-btn").style.display = "none";
-                }
-            } catch (error) {
-                console.error("無法載入用戶資料:", error);
-                document.getElementById("stats").innerText = "❌ 無法載入您的數據，請稍後再試。";
+                document.getElementById("sign-in-btn").addEventListener("click", () => signIn(profile.userId, profile.displayName));
             }
         }
 
@@ -104,8 +76,6 @@
                 });
                 const result = await response.json();
                 alert(result.message);
-                document.getElementById("sign-in-btn").disabled = true;
-                loadUserData(userId); // 重新載入數據
             } catch (error) {
                 console.error("簽到錯誤:", error);
             }

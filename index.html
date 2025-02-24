@@ -1,53 +1,86 @@
-import { useEffect, useState } from "react";
-import liff from "@line/liff";
-import { Button, Card, CardContent } from "@/components/ui";
-
-export default function SignInPage() {
-  const [userId, setUserId] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [isSignedIn, setIsSignedIn] = useState(false);
-
-  useEffect(() => {
-   liff.init({ liffUrl: "https://liff.line.me/2006949127-qlKbVbKb" }).then(() => {
-      if (liff.isLoggedIn()) {
-        liff.getProfile().then((profile) => {
-          setUserId(profile.userId);
-          setDisplayName(profile.displayName);
-        });
-      } else {
-        liff.login();
-      }
-    });
-  }, []);
-
-  const handleSignIn = async () => {
-    if (!userId) return;
-    try {
-      const response = await fetch("YOUR_GAS_WEB_APP_URL", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, displayName }),
-      });
-      const result = await response.json();
-      alert(result.message);
-      setIsSignedIn(true);
-    } catch (error) {
-      console.error("Error signing in:", error);
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-black text-white space-y-6">
-      <h1 className="text-4xl font-bold animate-pulse">🌌 小宇宙簽到系統 🌠</h1>
-      <Card className="p-6 text-center bg-gray-800 border border-gray-500 shadow-lg rounded-2xl">
-        <CardContent>
-          <p className="text-lg">{displayName ? `歡迎, ${displayName} 🌟` : "載入中..."}</p>
-          <Button className="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition-all duration-300 ease-in-out transform hover:scale-110" onClick={handleSignIn} disabled={isSignedIn}>
-            {isSignedIn ? "✨ 已簽到 ✨" : "🌍 簽到"}
-          </Button>
-        </CardContent>
-      </Card>
-      <p className="text-sm text-gray-400 animate-fade">維護宇宙的穩定，由你開始！🚀</p>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小宇宙簽到系統</title>
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.0/sdk.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .card {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌌 小宇宙簽到系統 🌠</h1>
+        <div class="card">
+            <p id="user-info">載入中...</p>
+            <button id="sign-in-btn" class="btn" disabled>🌍 簽到</button>
+        </div>
+        <p>維護宇宙的穩定，由你開始！🚀</p>
     </div>
-  );
-}
+    <script>
+        const LIFF_ID = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzcfoFjf4BmMv9gmsSs5wRQeXIUh6yJdsZn0Qel0tl3QpBmsOjvNcfZyDYS1nA9bQbkXw/exec"; // 替換成你的 Google Apps Script URL
+
+        async function initLIFF() {
+            await liff.init({ liffId: LIFF_ID });
+
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                const profile = await liff.getProfile();
+                document.getElementById("user-info").innerText = `歡迎, ${profile.displayName} 🌟`;
+                document.getElementById("sign-in-btn").disabled = false;
+                document.getElementById("sign-in-btn").addEventListener("click", () => signIn(profile.userId, profile.displayName));
+            }
+        }
+
+        async function signIn(userId, displayName) {
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId, displayName })
+                });
+                const result = await response.json();
+                alert(result.message);
+                document.getElementById("sign-in-btn").disabled = true;
+            } catch (error) {
+                console.error("簽到錯誤:", error);
+            }
+        }
+
+        initLIFF();
+    </script>
+</body>
+</html>

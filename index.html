@@ -1,52 +1,48 @@
-import { useEffect, useState } from "react";
-import liff from "@line/liff";
-import { Button, Card, CardContent } from "@/components/ui";
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE 簽到</title>
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.0/sdk.js"></script>
+</head>
+<body>
+    <h2>LINE 簽到系統</h2>
+    <p id="user-info">載入中...</p>
+    <button id="sign-in-btn" disabled>簽到</button>
+    <script>
+        const LIFF_ID = "2006949127-qlKbVbKb"; // 替換為你的 LIFF ID
+        const GAS_URL = "YOUR_GAS_WEB_APP_URL"; // 替換為你的 Google Apps Script Web App URL
 
-export default function SignInPage() {
-  const [userId, setUserId] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [isSignedIn, setIsSignedIn] = useState(false);
+        async function initLIFF() {
+            await liff.init({ liffId: LIFF_ID });
 
-  useEffect(() => {
-    liff.init({ liffId: "YOUR_LIFF_ID" }).then(() => {
-      if (liff.isLoggedIn()) {
-        liff.getProfile().then((profile) => {
-          setUserId(profile.userId);
-          setDisplayName(profile.displayName);
-        });
-      } else {
-        liff.login();
-      }
-    });
-  }, []);
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                const profile = await liff.getProfile();
+                document.getElementById("user-info").innerText = `歡迎, ${profile.displayName}`;
+                document.getElementById("sign-in-btn").disabled = false;
+                document.getElementById("sign-in-btn").addEventListener("click", () => signIn(profile.userId, profile.displayName));
+            }
+        }
 
-  const handleSignIn = async () => {
-    if (!userId) return;
-    try {
-      const response = await fetch("YOUR_GAS_WEB_APP_URL", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, displayName }),
-      });
-      const result = await response.json();
-      alert(result.message);
-      setIsSignedIn(true);
-    } catch (error) {
-      console.error("Error signing in:", error);
-    }
-  };
+        async function signIn(userId, displayName) {
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId, displayName }),
+                });
+                const result = await response.json();
+                alert(result.message);
+                document.getElementById("sign-in-btn").disabled = true;
+            } catch (error) {
+                console.error("簽到錯誤:", error);
+            }
+        }
 
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <Card className="p-4 text-center">
-        <CardContent>
-          <h1 className="text-xl font-bold">LINE 簽到系統</h1>
-          <p className="mt-2">{displayName ? `歡迎, ${displayName}` : "載入中..."}</p>
-          <Button className="mt-4" onClick={handleSignIn} disabled={isSignedIn}>
-            {isSignedIn ? "已簽到" : "簽到"}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+        initLIFF();
+    </script>
+</body>
+</html>

@@ -1,16 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darklight Chronicles Redirect</title>
-    <script src="https://d.line-scdn.net/r/ii/linejs/2.1.4/line-sdk.min.js"></script>
-    <script>
-        // 在 LIFF 應用啟動時重定向到遊戲頁面
-        window.location.href = "https://pisceslee559.github.io/Darklight-Chronicles/";
-    </script>
-</head>
-<body>
-    <p>正在載入遊戲，請稍候...</p>
-</body>
-</html>
+import { useEffect, useState } from "react";
+import liff from "@line/liff";
+import { Button, Card, CardContent } from "@/components/ui";
+
+export default function SignInPage() {
+  const [userId, setUserId] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    liff.init({ liffId: "YOUR_LIFF_ID" }).then(() => {
+      if (liff.isLoggedIn()) {
+        liff.getProfile().then((profile) => {
+          setUserId(profile.userId);
+          setDisplayName(profile.displayName);
+        });
+      } else {
+        liff.login();
+      }
+    });
+  }, []);
+
+  const handleSignIn = async () => {
+    if (!userId) return;
+    try {
+      const response = await fetch("YOUR_GAS_WEB_APP_URL", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, displayName }),
+      });
+      const result = await response.json();
+      alert(result.message);
+      setIsSignedIn(true);
+    } catch (error) {
+      console.error("Error signing in:", error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <Card className="p-4 text-center">
+        <CardContent>
+          <h1 className="text-xl font-bold">LINE 簽到系統</h1>
+          <p className="mt-2">{displayName ? `歡迎, ${displayName}` : "載入中..."}</p>
+          <Button className="mt-4" onClick={handleSignIn} disabled={isSignedIn}>
+            {isSignedIn ? "已簽到" : "簽到"}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

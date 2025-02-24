@@ -1,112 +1,60 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小宇宙簽到系統</title>
-    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.0/sdk.js"></script>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background-color: #222;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-            width: 80%;
-            max-width: 400px;
-        }
-        .btn {
-            background-color: #007BFF;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-    </style>
-</head>
-<body>
-    <h1>🌌 小宇宙簽到系統 🌠</h1>
-    <div class="card">
-        <p id="user-info">載入中...</p>
-        <p id="stats">🔄 正在載入您的數據...</p>
-        <button id="sign-in-btn" class="btn" disabled>🌍 簽到</button>
-    </div>
-    <p>維護宇宙的穩定，由你開始！🚀</p>
-    <script>
-        const LIFF_ID = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx2o3RKPBImJFbtV5sgdm7hEtC7FHIkv8nmX4oa7A9BN9VgzPydp4fMiNsN8VMyUd0pjg/exec"; // 替換成你的 Google Apps Script URL
+<script>
+    const LIFF_ID = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換為你的 LIFF ID
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbx2o3RKPBImJFbtV5sgdm7hEtC7FHIkv8nmX4oa7A9BN9VgzPydp4fMiNsN8VMyUd0pjg/exec"; // 替換成你的 Google Apps Script URL
 
-        async function initLIFF() {
-            await liff.init({ liffId: LIFF_ID });
+    async function initLIFF() {
+        await liff.init({ liffId: LIFF_ID });
 
-            if (!liff.isLoggedIn()) {
-                liff.login();
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+            const profile = await liff.getProfile();
+            console.log("LIFF 已獲取用戶:", profile);
+            document.getElementById("user-info").innerText = `歡迎, ${profile.displayName} 🌟`;
+            loadUserData(profile.userId);
+        }
+    }
+
+    async function loadUserData(userId) {
+        console.log("正在請求試算表數據, 用戶 ID:", userId);
+        try {
+            const response = await fetch(`${GAS_URL}?action=getUserData&userId=${userId}`);
+            const result = await response.json();
+            console.log("從試算表獲取的數據:", result);
+            
+            if (result.exists) {
+                document.getElementById("user-info").innerText = `歡迎, ${result.displayName} 🌟`;
+                document.getElementById("stats").innerHTML = `
+                    🏆 總簽到次數：${result.totalSignIn} 次<br>
+                    🔥 連續簽到：${result.consecutiveSignIn} 天
+                `;
+                document.getElementById("sign-in-btn").disabled = false;
+                document.getElementById("sign-in-btn").addEventListener("click", () => signIn(userId, result.displayName));
             } else {
-                const profile = await liff.getProfile();
-                document.getElementById("user-info").innerText = `歡迎, ${profile.displayName} 🌟`;
-                loadUserData(profile.userId);
+                document.getElementById("user-info").innerText = "請先在 LINE 輸入『加入遊戲』";
+                document.getElementById("stats").innerText = "";
             }
+        } catch (error) {
+            console.error("無法載入用戶資料:", error);
+            document.getElementById("stats").innerText = "❌ 無法載入您的數據，請稍後再試。";
         }
+    }
 
-        async function loadUserData(userId) {
-            try {
-                const response = await fetch(`${GAS_URL}?action=getUserData&userId=${userId}`);
-                const result = await response.json();
-                
-                if (result.exists) {
-                    document.getElementById("user-info").innerText = `歡迎, ${result.displayName} 🌟`;
-                    document.getElementById("stats").innerHTML = `
-                        🏆 總簽到次數：${result.totalSignIn} 次<br>
-                        🔥 連續簽到：${result.consecutiveSignIn} 天
-                    `;
-                    document.getElementById("sign-in-btn").disabled = false;
-                    document.getElementById("sign-in-btn").addEventListener("click", () => signIn(userId, result.displayName));
-                } else {
-                    document.getElementById("user-info").innerText = "請先在 LINE 輸入『加入遊戲』";
-                    document.getElementById("stats").innerText = "";
-                }
-            } catch (error) {
-                console.error("無法載入用戶資料:", error);
-                document.getElementById("stats").innerText = "❌ 無法載入您的數據，請稍後再試。";
-            }
+    async function signIn(userId, displayName) {
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, displayName })
+            });
+            const result = await response.json();
+            alert(result.message);
+            document.getElementById("sign-in-btn").disabled = true;
+            loadUserData(userId); // 重新載入數據
+        } catch (error) {
+            console.error("簽到錯誤:", error);
         }
+    }
 
-        async function signIn(userId, displayName) {
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId, displayName })
-                });
-                const result = await response.json();
-                alert(result.message);
-                document.getElementById("sign-in-btn").disabled = true;
-                loadUserData(userId); // 重新載入數據
-            } catch (error) {
-                console.error("簽到錯誤:", error);
-            }
-        }
-
-        initLIFF();
-    </script>
-</body>
-</html>
+    initLIFF();
+</script>

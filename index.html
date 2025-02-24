@@ -70,10 +70,16 @@
                 });
                 const result = await response.json();
                 alert(result.message);
+                
+                // 關閉 LIFF 視窗
+                if (liff.isInClient()) {
+                    liff.closeWindow();
+                }
             } catch (error) {
                 console.error("簽到錯誤:", error);
             }
         }
+
         document.getElementById("sign-in-btn").addEventListener("click", signIn);
         initLIFF();
     </script>

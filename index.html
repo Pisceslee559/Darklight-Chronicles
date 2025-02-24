@@ -47,6 +47,7 @@
     <h1>🌌 小宇宙簽到系統 🌠</h1>
     <div class="card">
         <p id="user-info">載入中...</p>
+        <p id="stats">🔄 正在載入您的數據...</p>
         <button id="sign-in-btn" class="btn" disabled>🌍 簽到</button>
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
@@ -62,19 +63,30 @@
             } else {
                 const profile = await liff.getProfile();
                 document.getElementById("user-info").innerText = `歡迎, ${profile.displayName} 🌟`;
-                checkUserExists(profile.userId, profile.displayName);
+                loadUserData(profile.userId);
             }
         }
 
-        async function checkUserExists(userId, displayName) {
-            const response = await fetch(GAS_URL + "?action=checkUser&userId=" + userId);
-            const result = await response.json();
-            
-            if (result.exists) {
-                document.getElementById("sign-in-btn").disabled = false;
-                document.getElementById("sign-in-btn").addEventListener("click", () => signIn(userId, displayName));
-            } else {
-                document.getElementById("user-info").innerText = "請先在 LINE 輸入『加入遊戲』";
+        async function loadUserData(userId) {
+            try {
+                const response = await fetch(`${GAS_URL}?action=getUserData&userId=${userId}`);
+                const result = await response.json();
+                
+                if (result.exists) {
+                    document.getElementById("user-info").innerText = `歡迎, ${result.displayName} 🌟`;
+                    document.getElementById("stats").innerHTML = `
+                        🏆 總簽到次數：${result.totalSignIn} 次<br>
+                        🔥 連續簽到：${result.consecutiveSignIn} 天
+                    `;
+                    document.getElementById("sign-in-btn").disabled = false;
+                    document.getElementById("sign-in-btn").addEventListener("click", () => signIn(userId, result.displayName));
+                } else {
+                    document.getElementById("user-info").innerText = "請先在 LINE 輸入『加入遊戲』";
+                    document.getElementById("stats").innerText = "";
+                }
+            } catch (error) {
+                console.error("無法載入用戶資料:", error);
+                document.getElementById("stats").innerText = "❌ 無法載入您的數據，請稍後再試。";
             }
         }
 
@@ -88,6 +100,7 @@
                 const result = await response.json();
                 alert(result.message);
                 document.getElementById("sign-in-btn").disabled = true;
+                loadUserData(userId); // 重新載入數據
             } catch (error) {
                 console.error("簽到錯誤:", error);
             }

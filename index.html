@@ -46,13 +46,14 @@
 <body>
     <h1>🌌 小宇宙簽到系統 🌠</h1>
     <div class="card">
-        <p id="user-info">歡迎來到小宇宙簽到系統！</p>
-        <button id="sign-in-btn" class="btn">🌍 簽到</button>
+        <p id="user-info">載入中...</p>
+        <p id="stats">🔄 正在載入您的數據...</p>
+        <button id="sign-in-btn" class="btn" disabled>🌍 簽到</button>
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
-        const LIFF_ID = "https://liff.line.me/2006957303-QVNd9gza"; // 替換成你的 LIFF URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx2o3RKPBImJFbtV5sgdm7hEtC7FHIkv8nmX4oa7A9BN9VgzPydp4fMiNsN8VMyUd0pjg/exec"; // 替換成你的 Google Apps Script URL
+        const LIFF_ID = "https://liff.line.me/YOUR_LIFF_ID"; // 替換成你的 LIFF URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwGYyW4J1myx8zxct_Mx5yEhB-PBzAe5Vi077a-v72gUkumpvQleF81am12sC8rpbSmxw/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
             await liff.init({ liffId: LIFF_ID });
@@ -63,6 +64,7 @@
                 const profile = await liff.getProfile();
                 console.log("LIFF 已獲取用戶:", profile);
                 document.getElementById("user-info").innerText = `歡迎, ${profile.displayName} 🌟`;
+                document.getElementById("sign-in-btn").disabled = false;
                 document.getElementById("sign-in-btn").addEventListener("click", () => signIn(profile.userId, profile.displayName));
             }
         }

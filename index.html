@@ -52,7 +52,7 @@
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
-        const LIFF_ID = "https://liff.line.me/YOUR_LIFF_ID"; // 替換成你的 LIFF URL
+        const LIFF_ID = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
         const GAS_URL = "https://script.google.com/macros/s/AKfycbxsmMBHVm7gm44tszyxmoZcQHd-BiKB_Ez39TC2d5X_fJwUN_pP8gnWs3Qz1KFYcII4TQ/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
@@ -70,6 +70,7 @@
         }
 
         async function signIn(userId, displayName) {
+            console.log("🚀 送出簽到請求:", userId, displayName);
             try {
                 const response = await fetch(GAS_URL, {
                     method: "POST",
@@ -79,9 +80,16 @@
                 const result = await response.json();
                 alert(result.message);
             } catch (error) {
-                console.error("簽到錯誤:", error);
+                console.error("❌ 簽到錯誤:", error);
+                alert("簽到失敗，請稍後再試。");
             }
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("sign-in-btn").addEventListener("click", () => {
+                console.log("🌍 簽到按鈕被點擊");
+            });
+        });
 
         initLIFF();
     </script>

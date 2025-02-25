@@ -51,7 +51,7 @@
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
         const LIFF_ID = "2006949127-qlKbVbKb"; // ✅ 使用純 LIFF ID
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwkFZMSJGngJvN7n8F_lgnnPaa69gt0a63_khPdwa9dtknYBvxfCnTjna_j9_XsI7hF0g/exec"; // 替換成你的 Google Apps Script URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzLpOxrVH2PkdRUUdVv8fCbM6kXLHgWdpfAIB_ocUejL1imeWBJ0KWpd3dM0XiWJDv7cQ/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
             try {
@@ -78,17 +78,22 @@
         async function signIn() {
             try {
                 console.log("發送簽到請求...");
+                
+                // 取得 LIFF 用戶資訊
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+
                 const response = await fetch(GAS_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: "已簽到" })
+                    body: JSON.stringify({ userId: userId, message: "已簽到" })
                 });
 
                 console.log("請求已發送，等待回應...");
                 const result = await response.json();
                 console.log("伺服器回應:", result);
                 alert(result.message);
-                
+
                 // 關閉 LIFF 視窗
                 if (liff.isInClient()) {
                     console.log("LIFF 在 LINE 內部，關閉視窗");

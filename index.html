@@ -67,13 +67,10 @@
 
         async function signIn() {
             try {
-                const profile = await liff.getProfile();
-                const userId = profile.userId;
-                
                 const response = await fetch(GAS_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: userId, message: "已簽到" })
+                    body: JSON.stringify({ message: "已簽到" })
                 });
                 
                 const result = await response.json();

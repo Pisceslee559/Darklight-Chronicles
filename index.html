@@ -50,12 +50,12 @@
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
-        const LIFF_URL = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
+        const LIFF_ID = "2006949127-qlKbVbKb"; // 替換成你的 LIFF ID
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyE87hBJmmh1eAK1KQdYamK6xsFPaCLoubcFLgrI_JuPxyPn1Vop4IVgpmblvM9utgjKQ/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
             try {
-                await liff.init({ liffId: LIFF_URL });
+                await liff.init({ liffId: LIFF_ID });
 
                 if (!liff.isLoggedIn()) {
                     liff.login();

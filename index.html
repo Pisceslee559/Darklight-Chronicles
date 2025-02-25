@@ -51,23 +51,31 @@
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
         const LIFF_ID = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwtBLy2flSJMd4pxRdnAbNKwXz_ooyv4VMI54yGuheZuRJttO8iz7M95w8utTy-0gKd/exec"; // 替換成你的 Google Apps Script URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxlBb-PKi3Mfkt6j45XSC_IpBxULJPkwR7LNqns5JY45PuqvDetjpwzbwVFlXbe_nTTPA/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
-            await liff.init({ liffId: LIFF_ID });
+            try {
+                await liff.init({ liffId: LIFF_ID });
 
-            if (!liff.isLoggedIn()) {
-                liff.login();
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                }
+            } catch (error) {
+                console.error("LIFF 初始化錯誤:", error);
             }
         }
 
         async function signIn() {
             try {
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                
                 const response = await fetch(GAS_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: "已簽到" })
+                    body: JSON.stringify({ userId: userId, message: "已簽到" })
                 });
+                
                 const result = await response.json();
                 alert(result.message);
                 
@@ -77,6 +85,7 @@
                 }
             } catch (error) {
                 console.error("簽到錯誤:", error);
+                alert("簽到失敗，請稍後再試！");
             }
         }
 

@@ -50,15 +50,15 @@
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
-        const LIFF_ID = "2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
+        const LIFF_ID = "2006949127-qlKbVbKb"; // ✅ 這是正確的 LIFF ID
+        const LIFF_URL = "https://liff.line.me/2006949127-qlKbVbKb"; // ✅ 這是完整的 LIFF URL
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyghoC6aXkCGZ8j_k8yhT2ZNMTJf9QD94kpuD8ibHugyR9D4kKYyyVaknfkIf3YkoDBHQ/exec"; // 替換成你的 Google Apps Script URL
-                        
+
         async function initLIFF() {
             try {
                 console.log("初始化 LIFF...");
                 await liff.init({ liffId: LIFF_ID });
 
-                // 確保登入後網址正確
                 if (liff.permanentLink) {
                     liff.permanentLink.setExtraQueryParam("");
                 }

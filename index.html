@@ -50,53 +50,32 @@
     </div>
     <p>維護宇宙的穩定，由你開始！🚀</p>
     <script>
-        const LIFF_ID = "2006949127-qlKbVbKb"; // ✅ 使用純 LIFF ID
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbymMdTlJ0iD4ot8XewwNcw5UtT_6bM0gpGVVskDHwbp9vQc-U_bE7bVQrfQrohoOQ_xMA/exec"; // 替換成你的 Google Apps Script URL
+        const LIFF_URL = "https://liff.line.me/2006949127-qlKbVbKb"; // 替換成你的 LIFF URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyE87hBJmmh1eAK1KQdYamK6xsFPaCLoubcFLgrI_JuPxyPn1Vop4IVgpmblvM9utgjKQ/exec"; // 替換成你的 Google Apps Script URL
 
         async function initLIFF() {
             try {
-                console.log("初始化 LIFF...");
-                await liff.init({ liffId: LIFF_ID });
-
-                // 確保登入後網址正確
-                if (liff.permanentLink) {
-                    liff.permanentLink.setExtraQueryParam("");
-                }
+                await liff.init({ liffId: LIFF_URL });
 
                 if (!liff.isLoggedIn()) {
-                    console.log("LIFF 未登入，正在重定向登入...");
                     liff.login();
-                } else {
-                    console.log("LIFF 已登入");
                 }
             } catch (error) {
                 console.error("LIFF 初始化錯誤:", error);
-                alert("LIFF 無法初始化，請稍後再試");
             }
         }
 
         async function signIn() {
             try {
-                console.log("發送簽到請求...");
-                
-                // 取得 LIFF 用戶資訊
-                const profile = await liff.getProfile();
-                const userId = profile.userId;
-
-                const response = await fetch(GAS_URL, {
+                await fetch(GAS_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: userId, message: "已簽到" })
+                    body: JSON.stringify({ message: "已簽到" })
                 });
-
-                console.log("請求已發送，等待回應...");
-                const result = await response.json();
-                console.log("伺服器回應:", result);
-                alert(result.message);
-
+                alert("✅ 簽到成功！");
+                
                 // 關閉 LIFF 視窗
                 if (liff.isInClient()) {
-                    console.log("LIFF 在 LINE 內部，關閉視窗");
                     liff.closeWindow();
                 }
             } catch (error) {
